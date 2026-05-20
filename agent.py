@@ -1,7 +1,10 @@
 from openai import OpenAI
 import os
 import json
-from tools import check_price, check_inventory, get_specs, list_products
+from prompts import SALES_AGENT_PROMPT
+from tools import check_price, check_inventory, get_specs, list_products, register_order
+
+
 
 class Agent:
     def __init__(self):
@@ -72,17 +75,42 @@ class Agent:
                         "properties": {}
                     }
                 }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "register_order",
+                    "description": "ثبت سفارش مشتری بعد از گرفتن اطلاعات کامل",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "customer_name": {
+                                "type": "string",
+                                "description": "نام مشتری"
+                            },
+                            "phone": {
+                                "type": "string",
+                                "description": "شماره تماس مشتری"
+                            },
+                            "address": {
+                                "type": "string",
+                                "description": "آدرس مشتری"
+                            },
+                            "product_name": {
+                                "type": "string",
+                                "description": "نام محصول"
+                            }
+                        },
+                        "required": ["customer_name", "phone", "address", "product_name"]
+                    }
+                }
             }
         ]
-
-
 
         self.messages = [
             {
                 "role": "system",
-                "content": """تو یک دستیار فروش هوشمند هستی.
-برای چک کردن قیمت، موجودی، و مشخصات محصول حتماً از tools استفاده کن.
-هیچوقت اطلاعات محصول رو از خودت نگو."""
+                "content": SALES_AGENT_PROMPT
             }
         ]
 
@@ -96,6 +124,13 @@ class Agent:
             return get_specs(tool_args["product_name"])
         elif tool_name == "list_products":
             return list_products()
+        elif tool_name == "register_order":
+            return register_order(
+                tool_args["customer_name"],
+                tool_args["phone"],
+                tool_args["address"],
+                tool_args["product_name"]
+            )
 
     def chat(self, user_input):
         self.messages.append({
