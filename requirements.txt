@@ -4,3 +4,7 @@ pandas
 openpyxl
 python-dotenv
 groq
+langchain
+langchain-openai
+langchain-core
+langgraph

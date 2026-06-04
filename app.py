@@ -1,4 +1,9 @@
 import streamlit as st
+from database import init_db, seed_products
+
+# ساخت دیتابیس اگه وجود نداشت
+init_db()
+seed_products()
 
 st.set_page_config(
     page_title="فروشگاه هوشمند",
