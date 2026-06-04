@@ -1,7 +1,39 @@
 import streamlit as st
 from database import get_connection
 import pandas as pd
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+ADMIN_USER = os.getenv("ADMIN_USERNAME", "admin")
+ADMIN_PASS = os.getenv("ADMIN_PASSWORD", "admin123")
+
+# ─── احراز هویت ───
+def check_password():
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = False
+
+    if not st.session_state.authenticated:
+        st.title("🔐 ورود به پنل مدیریت")
+
+        username = st.text_input("نام کاربری")
+        password = st.text_input("رمز عبور", type="password")
+
+        if st.button("ورود"):
+            if username == ADMIN_USER and password == ADMIN_PASS:
+                st.session_state.authenticated = True
+                st.rerun()
+            else:
+                st.error("نام کاربری یا رمز عبور اشتباهه!")
+        return False
+    return True
+
+
+if not check_password():
+    st.stop()
+
+# ─── بقیه کد admin ───
 st.set_page_config(page_title="پنل مدیریت", layout="wide")
 st.title("🛠️ پنل مدیریت فروشگاه")
 
